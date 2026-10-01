@@ -39,9 +39,15 @@ private temporary directory, and retain the resulting account key and thumbprint
 the private inputs. Salt downloads the same executable from its official source;
 no upstream executable is committed here.
 
-Public MatrixRTC signaling uses TCP 443 on the Matrix backend domain. LiveKit TURN uses
-TCP/UDP 443 on the LiveKit host. TCP 80 serves certificate validation separately. Do not
-expose the reference project's other media ports.
+Public MatrixRTC signaling uses TCP 443 on the Matrix backend domain. Stage media uses
+TURN/TLS on TCP 443 on the LiveKit host; `livekit.public_udp: false` closes inbound UDP.
+The SFU and embedded TURN relay still exchange UDP locally. Reserve the shared public
+IP's UDP 443 for Production: set `livekit.public_udp: true` in its private host settings
+and forward that public UDP port only to its LiveKit host. Neither environment exposes
+HTTP/3 on that IP. TCP 80 serves certificate validation separately. Do not expose the
+reference project's other media ports.
+LiveKit's normal ICE negotiation may try UDP before falling back to TURN/TLS;
+this setting controls public reachability, not the client's initial candidate order.
 FreeBSD edge forwarding remains owner-operated. Complete the edge routes before
 claiming public certificate or media verification.
 

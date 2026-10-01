@@ -10,6 +10,10 @@ with no GitHub fork relationship. Upstream licenses and attribution are retained
 Versions and images are native Salt Pillar values in `pillar/`; there is no separate
 version catalog, image manifest or configuration release package.
 
+Stage exposes only TURN/TLS on TCP 443 for media (`livekit.public_udp: false`).
+Production can enable direct UDP 443 in its private host settings; the shared public
+UDP port belongs to only that LiveKit host, not Stage or HTTP/3.
+
 LiveKit's TURN relay advertises `livekit.node_ip` on its configured UDP relay
 range. The incoming firewall keeps that range closed; an OUTPUT-only UFW DNAT
 maps this host's UDP traffic to its own advertised IP on UDP 443 and the relay

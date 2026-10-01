@@ -17,7 +17,7 @@
 ### tuple ### allow tcp 443 {{ ingress_proxy_address }} any {{ any_address }} in
 -A {{ chain }} -p tcp -s {{ ingress_proxy_address }} --dport 443 -j ACCEPT
 {% endif %}
-{% if family == "v4" %}
+{% if family == "v4" and pillar["livekit"]["public_udp"] %}
 ### tuple ### allow udp 443 0.0.0.0/0 any 0.0.0.0/0 in
 -A {{ chain }} -p udp --dport 443 -j ACCEPT
 {% endif %}
