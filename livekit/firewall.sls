@@ -1,5 +1,6 @@
 {% set matrix_address = pillar["network"]["matrix_address"] %}
 {% set ingress_proxy_address = pillar["network"]["ingress_proxy_address"] %}
+{% set tls_enabled = pillar.get("tls", {}).get("enabled", true) %}
 
 salt-livekit-ufw-package:
   pkg.installed:
@@ -104,5 +105,7 @@ salt-livekit-firewall:
       - file: salt-livekit-ufw-user-rules
       - file: salt-livekit-ufw-user6-rules
       - file: salt-livekit-turn-local-nat
+{% if tls_enabled %}
     - require_in:
       - service: salt-acme-bootstrap-service
+{% endif %}

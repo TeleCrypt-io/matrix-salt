@@ -22,10 +22,17 @@ values for the JWT service. Do not duplicate them in per-host settings.
 
 ## Certificates
 
-Reuse acme.sh stateless HTTP-01 through HAProxy, as in the source project. Public
-TCP 80 must reach the owning Linux host's HAProxy; the edge forwards challenges by
-Host name. The Matrix host owns its apex/backend certificate and Matrix signaling domain;
-the LiveKit host owns the TURN certificate. Salt installs certificates in
+The example Stage host settings currently set `tls.enabled: false`. This skips the
+ACME and certificate states and public TCP listeners; Matrix HAProxy keeps its private
+application API on port 8080, while LiveKit HAProxy stays stopped. No ACME account key
+or thumbprint is needed while TLS is disabled. Set `enabled: true` for both hosts when
+the Stage edge can serve HTTP-01 and the private ACME inputs are ready; the existing
+stateless acme.sh issuance and renewal states then run as before.
+
+When TLS is enabled, reuse acme.sh stateless HTTP-01 through HAProxy, as in the source
+project. Public TCP 80 must reach the owning Linux host's HAProxy; the edge forwards
+challenges by Host name. The Matrix host owns its apex/backend certificate and Matrix
+signaling domain; the LiveKit host owns the TURN certificate. Salt installs certificates in
 `/etc/haproxy/certs/<tls.cert_name>.pem` with the adjacent `.pem.key` file. acme.sh's
 cron renews them and reloads that host's HAProxy. The private application host does
 not need a public certificate.
@@ -39,17 +46,18 @@ private temporary directory, and retain the resulting account key and thumbprint
 the private inputs. Salt downloads the same executable from its official source;
 no upstream executable is committed here.
 
-Public MatrixRTC signaling uses TCP 443 on the Matrix backend domain. Stage media uses
-TURN/TLS on TCP 443 on the LiveKit host; `livekit.public_udp: false` closes inbound UDP.
-The SFU and embedded TURN relay still exchange UDP locally. Reserve the shared public
+With TLS enabled, public MatrixRTC signaling uses TCP 443 on the Matrix backend domain
+and media can use TURN/TLS on TCP 443 on the LiveKit host. While Stage TLS is deferred,
+neither listener is public. `livekit.public_udp: false` closes inbound UDP. The SFU and
+embedded TURN relay still exchange UDP locally. Reserve the shared public
 IP's UDP 443 for Production: set `livekit.public_udp: true` in its private host settings
 and forward that public UDP port only to its LiveKit host. Neither environment exposes
-HTTP/3 on that IP. TCP 80 serves certificate validation separately. Do not expose the
-reference project's other media ports.
+HTTP/3 on that IP. TCP 80 serves certificate validation when TLS is enabled. Do not
+expose the reference project's other media ports.
 LiveKit's normal ICE negotiation may try UDP before falling back to TURN/TLS;
 this setting controls public reachability, not the client's initial candidate order.
 FreeBSD edge forwarding remains owner-operated. Complete the edge routes before
-claiming public certificate or media verification.
+enabling TLS or claiming public certificate or media verification.
 
 ## Controller
 

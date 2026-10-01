@@ -2,6 +2,7 @@ deployment:
   role: matrix
   environment: stage
 tls:
+  enabled: false
   cert_name: matrix
   hosts:
     - stage.example.invalid

@@ -2,6 +2,7 @@ deployment:
   role: livekit
   environment: stage
 tls:
+  enabled: false
   cert_name: livekit-turn
   hosts: [turn.stage.example.invalid]
   acme_account_thumbprint: REPLACE_WITH_ACCOUNT_THUMBPRINT

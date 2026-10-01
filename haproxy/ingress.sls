@@ -1,12 +1,14 @@
 {% set role = pillar['deployment']['role'] %}
+{% set tls_enabled = pillar.get('tls', {}).get('enabled', true) %}
 include:
-{% if role == 'apps' %}
+{% if role == 'apps' or not tls_enabled %}
   - haproxy.package
 {% else %}
   - haproxy.bootstrap
   - haproxy.cert
 {% endif %}
 
+{% if role != 'livekit' or tls_enabled %}
 salt-ingress-config:
   file.managed:
     - name: /etc/haproxy/haproxy.cfg
@@ -19,7 +21,7 @@ salt-ingress-config:
     - check_cmd: /usr/sbin/haproxy -c -f
     - require:
       - pkg: salt-haproxy-package
-{% if role != 'apps' %}
+{% if role != 'apps' and tls_enabled %}
       - cmd: salt-cert-installed
 {% endif %}
 
@@ -28,7 +30,7 @@ salt-ingress-stop-before-config:
     - name: haproxy
     - require:
       - pkg: salt-haproxy-package
-{% if role != 'apps' %}
+{% if role != 'apps' and tls_enabled %}
       - cmd: salt-cert-installed
 {% endif %}
     - prereq:
@@ -41,3 +43,11 @@ salt-ingress-service:
     - require:
       - service: salt-ingress-stop-before-config
       - file: salt-ingress-config
+{% else %}
+salt-ingress-stopped:
+  service.dead:
+    - name: haproxy
+    - enable: false
+    - require:
+      - pkg: salt-haproxy-package
+{% endif %}

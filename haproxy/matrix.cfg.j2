@@ -1,13 +1,16 @@
 {% set tls = pillar['tls'] %}
+{% set tls_enabled = tls.get('enabled', true) %}
 {% set domain = pillar['site']['server_name'] %}
 {% set network = pillar['network'] %}
 global
     log stdout format raw local0
     user haproxy
     group haproxy
+{% if tls_enabled %}
     setenv ACCOUNT_THUMBPRINT '{{ tls['acme_account_thumbprint'] }}'
     ssl-default-bind-options ssl-min-ver TLSv1.2 no-tls-tickets
     ssl-load-extra-files key
+{% endif %}
 
 defaults
     log global
@@ -17,6 +20,7 @@ defaults
     timeout client 1h
     timeout server 1h
 
+{% if tls_enabled %}
 frontend acme_http
     bind :80
     http-request return status 200 content-type text/plain lf-string "%[path,field(-1,/)].${ACCOUNT_THUMBPRINT}\n" if { path_reg ^/.well-known/acme-challenge/[-_a-zA-Z0-9]+$ }
@@ -54,6 +58,7 @@ frontend matrix_https
     use_backend applications if { path_beg /plan/ }
     use_backend mas if mas_path or mas_prefix
     default_backend not_found
+{% endif %}
 
 # Only the application host reaches administrative APIs; applications still authenticate.
 frontend matrix_private

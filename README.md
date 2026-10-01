@@ -10,9 +10,12 @@ with no GitHub fork relationship. Upstream licenses and attribution are retained
 Versions and images are native Salt Pillar values in `pillar/`; there is no separate
 version catalog, image manifest or configuration release package.
 
-Stage exposes only TURN/TLS on TCP 443 for media (`livekit.public_udp: false`).
-Production can enable direct UDP 443 in its private host settings; the shared public
-UDP port belongs to only that LiveKit host, not Stage or HTTP/3.
+Stage's public TLS listeners and certificate issuance are temporarily deferred with
+`tls.enabled: false` in its private Matrix and LiveKit settings. Matrix HAProxy still
+serves the private application API on port 8080; LiveKit HAProxy stays stopped, so
+Stage currently has no public TURN/TLS listener. Production can enable direct UDP 443
+in its private host settings; the shared public UDP port belongs to only that LiveKit
+host, not Stage or HTTP/3.
 
 LiveKit's TURN relay advertises `livekit.node_ip` on its configured UDP relay
 range. The incoming firewall keeps that range closed; an OUTPUT-only UFW DNAT

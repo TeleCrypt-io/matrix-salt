@@ -1,6 +1,7 @@
 {% set chain = "ufw6-user-input" if family == "v6" else "ufw-user-input" %}
 {% set any_address = "::/0" if family == "v6" else "0.0.0.0/0" %}
 {% set ingress_family = "v6" if ":" in ingress_proxy_address else "v4" %}
+{% set tls_enabled = pillar.get("tls", {}).get("enabled", true) %}
 # Managed by Salt. The default incoming policy is DROP; only these listeners are admitted.
 *filter
 :{{ chain }} - [0:0]
@@ -11,7 +12,7 @@
 ### RULES ###
 ### tuple ### allow tcp {{ pillar["network"]["ssh_port"] }} {{ any_address }} any {{ any_address }} in
 -A {{ chain }} -p tcp --dport {{ pillar["network"]["ssh_port"] }} -j ACCEPT
-{% if family == ingress_family %}
+{% if tls_enabled and family == ingress_family %}
 ### tuple ### allow tcp 80 {{ ingress_proxy_address }} any {{ any_address }} in
 -A {{ chain }} -p tcp -s {{ ingress_proxy_address }} --dport 80 -j ACCEPT
 ### tuple ### allow tcp 443 {{ ingress_proxy_address }} any {{ any_address }} in
