@@ -64,6 +64,8 @@ salt-acme-auto-upgrade-disabled:
     - repl: "AUTO_UPGRADE='0'"
     - append_if_not_found: true
     - backup: false
+    # The required managed file creates this on first apply; a dry run leaves it absent.
+    - ignore_if_missing: true
     # Match acme.sh's _saveaccountconf quoting so both writers preserve the same value.
     - require:
       - file: salt-acme-account-config
