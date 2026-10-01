@@ -1,7 +1,7 @@
-# Released baseline; select the new cross-host policy image before first replacement apply.
+# Published custom Synapse with the cross-host policy; PostgreSQL and S3 remain external.
 versions:
   images:
-    synapse: ghcr.io/telecrypt-io/telecrypt-synapse:1.159-tc34
+    synapse: ghcr.io/telecrypt-io/telecrypt-synapse:1.159-tc35
     mas: ghcr.io/element-hq/matrix-authentication-service:1.24.0
     lk-jwt: ghcr.io/element-hq/lk-jwt-service:0.7.0
 matrix:
