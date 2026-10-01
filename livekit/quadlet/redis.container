@@ -1,0 +1,28 @@
+[Unit]
+Description=Redis for LiveKit
+
+[Container]
+LogDriver=journald
+ContainerName=redis
+Image={{ image }}
+Network=host
+Pull=missing
+Volume=redis-data.volume:/data:rw
+Volume=/home/ubuntu/salt_config/livekit/redis.conf:/usr/local/etc/redis/redis.conf:ro
+EnvironmentFile=/home/ubuntu/salt_config/livekit/redis-health.env
+Exec=redis-server /usr/local/etc/redis/redis.conf
+HealthCmd=["redis-cli","ping"]
+HealthInterval=5s
+HealthTimeout=3s
+HealthRetries=10
+Notify=healthy
+StopTimeout=30
+
+[Service]
+TimeoutStartSec=900
+TimeoutStopSec=35
+Restart=always
+RestartSec=2
+
+[Install]
+WantedBy=default.target

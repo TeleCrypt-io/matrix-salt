@@ -1,0 +1,14 @@
+[Unit]
+Description=Matrix application pod
+
+[Pod]
+PodName=matrix-pod
+Network=pasta
+ExitPolicy=continue
+PublishPort=127.0.0.1:8008:8008/tcp
+PublishPort=127.0.0.1:8082:8082/tcp
+PublishPort=127.0.0.1:8081:8081/tcp
+PublishPort=127.0.0.1:9013:9013/tcp
+
+[Install]
+WantedBy=default.target

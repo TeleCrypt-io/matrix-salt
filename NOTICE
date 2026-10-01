@@ -1,0 +1,13 @@
+Configuration adapted from PotemkinCo/matrix-salt, revision
+8bb77dd8b07eef5e71d9bd2fa87560ad726daa27, licensed under Apache-2.0.
+Upstream: https://github.com/PotemkinCo/matrix-salt
+The original Apache license is retained in LICENSES/Apache-2.0.txt.
+TeleCrypt adaptations use the license in LICENSE; upstream attribution is preserved.
+
+The user_service Salt execution and state modules are adapted from
+lkubb/salt-podman-formula, revision 3e36dcc47f69992f518645c3c0858401e4cbcb6e.
+Copyright (c) 2014 Salt Stack Formulas. Licensed under Apache-2.0.
+
+Local adaptations use argv execution, an explicit systemd user manager,
+nonblocking jobs with state polling, and test-mode reporting for prereq.
+Upstream: https://github.com/lkubb/salt-podman-formula

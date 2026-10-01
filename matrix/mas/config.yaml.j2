@@ -1,0 +1,95 @@
+# Matrix Authentication Service — committed public configuration. Contains no secrets.
+# Database credentials, MAS signing/encryption keys, Synapse shared secret, and the Plan/Janitor
+# client credentials stay in the private mas.secrets.json input.
+
+http:
+  listeners:
+    - name: web
+      resources:
+        - name: discovery
+        - name: human
+        - name: oauth
+        - name: compat
+        - name: graphql
+        - name: assets
+      binds:
+        # Host HAProxy publishes this pod listener only on its loopback interface.
+        - address: '0.0.0.0:8082'
+      proxy_protocol: false
+
+    - name: internal
+      resources:
+        - name: adminapi       # REST admin API; authorization remains enforced by MAS
+        - name: oauth          # Plan/Janitor client-credentials token endpoint; no public route
+        - name: health         # Host HAProxy checks service health on its loopback-only listener.
+      binds:
+        # MAS enforces authorization; Plan and Janitor use the admin API and token endpoint. The host
+        # publishes this listener only on loopback and HAProxy has no public route for it.
+        - address: '0.0.0.0:8081'
+      proxy_protocol: false
+
+  # MAS uses the immediate transport peer for rate limiting/logging and does not trust forwarded
+  # client-IP values from HAProxy or other services in the shared pod.
+  trusted_proxies: []
+  public_base: {{ ("https://backend." ~ pillar["site"]["server_name"] ~ "/") | tojson }}
+
+rate_limiting:
+  login:
+    per_ip:
+      burst: {{ pillar["matrix"]["mas"]["login_per_ip_burst"] }}
+      per_second: {{ pillar["matrix"]["mas"]["login_per_ip_per_second"] }}
+    per_account:
+      burst: {{ pillar["matrix"]["mas"]["login_per_account_burst"] }}
+      per_second: {{ pillar["matrix"]["mas"]["login_per_account_per_second"] }}
+  registration:
+    burst: {{ pillar["matrix"]["mas"]["registration_burst"] }}
+    per_second: {{ pillar["matrix"]["mas"]["registration_per_second"] }}
+
+# The private overlay supplies the database and shared Synapse secret; keep the complete public
+# Matrix connection map in this file so MAS's merge rules preserve it.
+matrix:
+  kind: synapse
+  endpoint: http://127.0.0.1:8008
+
+# MAS-managed passwords are accepted only by MAS's hosted OAuth human pages (for
+# registration and reauthentication). Email password recovery is currently unavailable because
+# the configured email transport is non-delivering; HAProxy denies Matrix
+# `/_matrix/client/*/login` password authentication.
+passwords:
+  enabled: true
+
+account:
+  password_registration_enabled: true
+  registration_token_required: false
+  password_registration_email_required: false
+  password_change_allowed: true
+  password_recovery_enabled: false
+  account_deactivation_allowed: true
+  login_with_email_allowed: false
+  email_change_allowed: true
+  displayname_change_allowed: true
+
+experimental:
+  plan_management_iframe_uri: {{ ("https://backend." ~ pillar["site"]["server_name"] ~ "/plan/overview") | tojson }}
+
+# Email is deliberately non-delivering until an approved transport and destination exist.
+email:
+  transport: blackhole
+
+# MAS owns these checks. Janitor's admin client ID is environment-specific and contains no secret.
+policy:
+  wasm_module: /usr/local/share/mas-cli/policy.wasm
+  client_registration_entrypoint: client_registration/violation
+  register_entrypoint: register/violation
+  authorization_grant_entrypoint: authorization_grant/violation
+  compat_login_entrypoint: compat_login/violation
+  password_entrypoint: password/violation
+  email_entrypoint: email/violation
+  data:
+    admin_clients:
+      - {{ pillar["matrix"]["mas"]["admin_client_id"] | tojson }}
+
+# clients: -> in mas.secrets.json (Plan OIDC and Janitor admin credentials)
+
+branding:
+  service_name: 'TeleCrypt.io'

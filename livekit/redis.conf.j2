@@ -1,0 +1,7 @@
+{% set secrets = pillar['livekit']['credentials'] %}
+bind 127.0.0.1
+protected-mode yes
+port 6379
+requirepass '{{ secrets["REDIS_PASSWORD"] | replace("\\", "\\\\") | replace("'", "\\'") }}'
+appendonly yes
+appendfsync everysec

@@ -1,0 +1,28 @@
+[Unit]
+Description=Matrix Authentication Service
+BindsTo=matrix-pod.service
+After=matrix-pod.service
+
+[Container]
+LogDriver=journald
+ContainerName=mas
+Image={{ image }}
+Pod=matrix.pod
+StartWithPod=false
+NoNewPrivileges=true
+Pull=missing
+User=991:991
+ReadOnly=true
+DropCapability=ALL
+Tmpfs=/tmp:rw,mode=1777
+Environment=RUST_LOG={{ pillar["matrix"]["mas"]["rust_log"] }}
+Volume=/home/ubuntu/salt_config/runtime/mas.yaml:/config.yaml:ro
+Volume=/home/ubuntu/salt_config/secrets/mas.secrets.json:/secrets.json:ro
+Exec=server --config=/config.yaml --config=/secrets.json
+[Service]
+TimeoutStartSec=900
+Restart=always
+RestartSec=2
+
+[Install]
+WantedBy=default.target

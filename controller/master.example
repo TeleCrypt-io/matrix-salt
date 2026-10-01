@@ -1,0 +1,24 @@
+# Render into a private temporary invocation directory; remove it on exit.
+# Apps uses its checkout first, followed by its common/ Matrix Salt submodule.
+file_roots:
+  base:
+    - /ABSOLUTE/CONFIGURATION_CHECKOUT
+    - /ABSOLUTE/PRIVATE_INPUTS
+pillar_roots:
+  base:
+    - /ABSOLUTE/INVOCATION/pillar
+    - /ABSOLUTE/PRIVATE_INPUTS
+    - /ABSOLUTE/CONFIGURATION_CHECKOUT/pillar
+roster: sshconfig
+ssh_config_file: /ABSOLUTE/HOME/.ssh/config
+ssh_sudo: true
+ssh_options:
+  - BatchMode=yes
+  - StrictHostKeyChecking=yes
+ssh_timeout: 30
+pki_dir: /ABSOLUTE/INVOCATION/pki
+cachedir: /ABSOLUTE/INVOCATION/cache
+extension_modules: /ABSOLUTE/INVOCATION/extmods
+sock_dir: /ABSOLUTE/INVOCATION/run
+log_file: /ABSOLUTE/INVOCATION/master.log
+ssh_log_file: /ABSOLUTE/INVOCATION/ssh.log

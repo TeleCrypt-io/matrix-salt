@@ -1,0 +1,17 @@
+# Private operator inputs and controller configuration, if kept locally.
+/private-pillar/
+/controller-runtime/
+
+# Runtime data and output
+/runtime/
+/persistent/
+/db/
+/media_store/
+*.log
+*.pid
+
+# Python artifacts
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/

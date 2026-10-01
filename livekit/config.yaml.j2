@@ -1,0 +1,36 @@
+{% set secrets = pillar['livekit']['credentials'] %}
+{% set livekit = pillar["livekit"] %}
+port: 7880
+bind_addresses:
+  - {{ pillar["network"]["private_address"] | tojson }}
+rtc:
+  node_ip: {{ livekit["node_ip"] | tojson }}
+  use_external_ip: false
+  udp_port: 443
+  tcp_port: 0
+  allow_tcp_fallback: true
+redis:
+  address: 127.0.0.1:6379
+  password: {{ secrets["REDIS_PASSWORD"] | tojson }}
+keys:
+  {{ pillar["rtc"]["key"] | tojson }}: {{ pillar["rtc"]["secret"] | tojson }}
+room:
+  auto_create: false
+webhook:
+  api_key: {{ pillar["rtc"]["key"] | tojson }}
+  urls:
+    - {{ ("https://backend." ~ pillar["site"]["server_name"] ~ "/sfu_webhook") | tojson }}
+turn:
+  enabled: true
+  domain: {{ livekit["turn_host"] | tojson }}
+  bind_addresses:
+    - 0.0.0.0
+  tls_port: 5349
+  udp_port: 0
+  relay_range_start: {{ livekit["relay_range_start"] }}
+  relay_range_end: {{ livekit["relay_range_end"] }}
+  external_tls: true
+  proxy_protocol: true
+  proxy_protocol_trusted_cidrs:
+    - 127.0.0.0/8
+    - ::1/128

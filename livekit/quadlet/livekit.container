@@ -1,0 +1,23 @@
+[Unit]
+Description=LiveKit SFU
+Requires=redis.service
+After=redis.service
+
+[Container]
+LogDriver=journald
+ContainerName=livekit
+Image={{ image }}
+Network=host
+Pull=missing
+Volume=/home/ubuntu/salt_config/livekit/livekit.yaml:/etc/livekit/livekit.yaml:ro
+Exec=--config=/etc/livekit/livekit.yaml
+StopTimeout=120
+
+[Service]
+TimeoutStartSec=900
+TimeoutStopSec=130
+Restart=always
+RestartSec=2
+
+[Install]
+WantedBy=default.target

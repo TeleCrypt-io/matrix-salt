@@ -1,0 +1,32 @@
+{% set chain = "ufw6-user-input" if family == "v6" else "ufw-user-input" %}
+{% set any_address = "::/0" if family == "v6" else "0.0.0.0/0" %}
+{% set ingress_family = "v6" if ":" in ingress_proxy_address else "v4" %}
+# Managed by Salt. The default incoming policy is DROP; only these listeners are admitted.
+*filter
+:{{ chain }} - [0:0]
+:{% if family == "v6" %}ufw6-user-output{% else %}ufw-user-output{% endif %} - [0:0]
+:{% if family == "v6" %}ufw6-user-forward{% else %}ufw-user-forward{% endif %} - [0:0]
+:{% if family == "v6" %}ufw6-user-limit{% else %}ufw-user-limit{% endif %} - [0:0]
+:{% if family == "v6" %}ufw6-user-limit-accept{% else %}ufw-user-limit-accept{% endif %} - [0:0]
+### RULES ###
+### tuple ### allow tcp {{ pillar["network"]["ssh_port"] }} {{ any_address }} any {{ any_address }} in
+-A {{ chain }} -p tcp --dport {{ pillar["network"]["ssh_port"] }} -j ACCEPT
+{% if family == ingress_family %}
+### tuple ### allow tcp 80 {{ ingress_proxy_address }} any {{ any_address }} in
+-A {{ chain }} -p tcp -s {{ ingress_proxy_address }} --dport 80 -j ACCEPT
+### tuple ### allow tcp 443 {{ ingress_proxy_address }} any {{ any_address }} in
+-A {{ chain }} -p tcp -s {{ ingress_proxy_address }} --dport 443 -j ACCEPT
+{% endif %}
+{% if family == "v4" %}
+### tuple ### allow udp 443 0.0.0.0/0 any 0.0.0.0/0 in
+-A {{ chain }} -p udp --dport 443 -j ACCEPT
+{% endif %}
+{% if (family == "v4" and ":" not in matrix_address) or (family == "v6" and ":" in matrix_address) %}
+### tuple ### allow tcp 7880 {{ matrix_address }} any {{ any_address }} in
+-A {{ chain }} -p tcp -s {{ matrix_address }} --dport 7880 -j ACCEPT
+{% endif %}
+### END RULES ###
+-A {% if family == "v6" %}ufw6-user-limit{% else %}ufw-user-limit{% endif %} -m limit --limit 3/minute -j LOG --log-prefix "[UFW LIMIT BLOCK] "
+-A {% if family == "v6" %}ufw6-user-limit{% else %}ufw-user-limit{% endif %} -j REJECT
+-A {% if family == "v6" %}ufw6-user-limit-accept{% else %}ufw-user-limit-accept{% endif %} -j ACCEPT
+COMMIT

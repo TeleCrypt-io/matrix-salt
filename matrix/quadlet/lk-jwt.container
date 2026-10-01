@@ -1,0 +1,36 @@
+[Unit]
+Description=LiveKit MatrixRTC JWT service
+BindsTo=matrix-pod.service
+Requires=synapse.service
+After=matrix-pod.service synapse.service
+
+[Container]
+LogDriver=journald
+ContainerName=lk-jwt
+Image={{ image }}
+Pod=matrix.pod
+StartWithPod=false
+NoNewPrivileges=true
+Notify=healthy
+Pull=missing
+User=991:991
+ReadOnly=true
+DropCapability=ALL
+Environment=LIVEKIT_URL=wss://backend.{{ pillar["site"]["server_name"] }}/livekit
+Environment=LIVEKIT_JWT_BIND=0.0.0.0:9013
+Environment=LIVEKIT_FULL_ACCESS_HOMESERVERS={{ pillar["site"]["server_name"] }}
+Environment=LIVEKIT_KEY_FILE=/etc/livekit/keys.yaml
+Volume=/home/ubuntu/salt_config/secrets/livekit.keys.yaml:/etc/livekit/keys.yaml:ro
+HealthCmd=["/lk-jwt-service-healthcheck",""]
+HealthInterval=30s
+HealthTimeout=5s
+HealthRetries=3
+HealthStartPeriod=15s
+
+[Service]
+TimeoutStartSec=900
+Restart=always
+RestartSec=2
+
+[Install]
+WantedBy=default.target
