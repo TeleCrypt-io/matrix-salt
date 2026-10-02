@@ -12,6 +12,17 @@ include:
   - haproxy.cert
 {% endif %}
 
+{% if role != 'apps' and tls_enabled and supplied_certificate %}
+salt-ingress-stop-before-certificates:
+  service.dead:
+    - name: haproxy
+    - require:
+      - pkg: salt-haproxy-package
+    - prereq:
+      - file: salt-haproxy-cert-file
+      - file: salt-haproxy-key-file
+{% endif %}
+
 {% if role != 'livekit' or tls_enabled %}
 salt-ingress-config:
   file.managed:
@@ -40,16 +51,15 @@ salt-ingress-stop-before-config:
     - require:
       - pkg: salt-haproxy-package
 {% if role != 'apps' and tls_enabled %}
-{% if not supplied_certificate %}
+{% if supplied_certificate %}
+      - file: salt-haproxy-cert-file
+      - file: salt-haproxy-key-file
+{% else %}
       - cmd: salt-cert-installed
 {% endif %}
 {% endif %}
     - prereq:
       - file: salt-ingress-config
-{% if role != 'apps' and tls_enabled and supplied_certificate %}
-      - file: salt-haproxy-cert-file
-      - file: salt-haproxy-key-file
-{% endif %}
 
 salt-ingress-service:
   service.running:
@@ -58,6 +68,11 @@ salt-ingress-service:
     - require:
       - service: salt-ingress-stop-before-config
       - file: salt-ingress-config
+{% if role != 'apps' and tls_enabled and supplied_certificate %}
+      - service: salt-ingress-stop-before-certificates
+      - file: salt-haproxy-cert-file
+      - file: salt-haproxy-key-file
+{% endif %}
 {% else %}
 salt-ingress-stopped:
   service.dead:
