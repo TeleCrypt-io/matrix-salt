@@ -10,10 +10,9 @@ with no GitHub fork relationship. Upstream licenses and attribution are retained
 Versions and images are native Salt Pillar values in `pillar/`; there is no separate
 version catalog, image manifest or configuration release package.
 
-Stage's public TLS listeners and certificate issuance are temporarily deferred with
-`tls.enabled: false` in its private Matrix and LiveKit settings. Matrix HAProxy still
-serves the private application API on port 8080; LiveKit HAProxy stays stopped, so
-Stage currently has no public TURN/TLS listener. Production can enable direct UDP 443
+With `tls.enabled: false`, public TLS listeners and certificate issuance are skipped.
+Matrix HAProxy still serves the private application API on port 8080; LiveKit HAProxy
+stays stopped. Production can enable direct UDP 443
 in its private host settings; the shared public UDP port belongs to only that LiveKit
 host, not Stage or HTTP/3.
 
@@ -35,6 +34,6 @@ a pinned Git submodule; it selects its own images and highstate.
 
 Unchanged inputs must make no changes. Files stop their affected service before
 replacement; running states recover a service left stopped by an interrupted apply.
-Fresh-host convergence, interruption recovery and actual product workflows still
-require verification on the replacement Stage hosts. Source preparation is not a
-completed deployment.
+Verify convergence, interruption recovery and actual product workflows on Stage.
+The [Harness deployment log](https://github.com/TeleCrypt-io/Harness/blob/main/docs/deployment-log.md)
+records the current deployment and acceptance results.

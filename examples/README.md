@@ -62,7 +62,7 @@ expose the reference project's other media ports.
 LiveKit's normal ICE negotiation may try UDP before falling back to TURN/TLS;
 this setting controls public reachability, not the client's initial candidate order.
 FreeBSD edge forwarding remains owner-operated. Complete the edge routes before
-enabling TLS or claiming public certificate or media verification.
+claiming public certificate or media verification; supplied certificates allow private tests meanwhile.
 
 ## Controller
 
