@@ -106,6 +106,11 @@ salt-livekit-firewall:
       - file: salt-livekit-ufw-user6-rules
       - file: salt-livekit-turn-local-nat
 {% if tls_enabled %}
+{% if pillar['tls'].get('certificate_source') is not none %}
+    - require_in:
+      - service: salt-ingress-service
+{% else %}
     - require_in:
       - service: salt-acme-bootstrap-service
+{% endif %}
 {% endif %}

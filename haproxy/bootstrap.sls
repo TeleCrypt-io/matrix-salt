@@ -1,6 +1,8 @@
 include:
   - haproxy.acme
 
+{% set primary = pillar["tls"]["hosts"][0] %}
+
 salt-acme-bootstrap-config:
   file.managed:
     - name: /etc/haproxy/haproxy.cfg
@@ -9,8 +11,8 @@ salt-acme-bootstrap-config:
     - user: root
     - group: root
     - mode: '0644'
-    # The ACME-only listener is needed only before a certificate exists.
-    - unless: test -s /etc/haproxy/certs/{{ pillar["tls"]["cert_name"] }}.pem
+    # A supplied certificate may exist without an acme.sh chain; restore HTTP-01 until issuance.
+    - unless: test -s /home/ubuntu/.acme.sh/{{ primary }}_ecc/fullchain.cer
     - check_cmd: /usr/sbin/haproxy -c -f
     - require:
       - pkg: salt-haproxy-package

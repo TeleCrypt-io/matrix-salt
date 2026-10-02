@@ -29,6 +29,11 @@ or thumbprint is needed while TLS is disabled. Set `enabled: true` for both host
 the Stage edge can serve HTTP-01 and the private ACME inputs are ready; the existing
 stateless acme.sh issuance and renewal states then run as before.
 
+While FreeBSD edge routing is pending, temporary Stage TLS can use an already generated
+self-signed PEM by setting `tls.enabled: true` and both `tls.certificate_source` and
+`tls.private_key_source` to Salt source URLs for the certificate and matching key. Remove
+both source settings after the edge is ready to return to ACME issuance and renewal.
+
 When TLS is enabled, reuse acme.sh stateless HTTP-01 through HAProxy, as in the source
 project. Public TCP 80 must reach the owning Linux host's HAProxy; the edge forwards
 challenges by Host name. The Matrix host owns its apex/backend certificate and Matrix

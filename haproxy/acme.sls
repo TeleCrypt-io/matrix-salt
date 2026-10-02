@@ -1,7 +1,6 @@
 {% set versions = pillar["versions"] %}
-{% set tls = pillar["tls"] %}
 include:
-  - haproxy.package
+  - haproxy.cert_files
 
 salt-acme-home:
   file.directory:
@@ -69,39 +68,6 @@ salt-acme-auto-upgrade-disabled:
     # Match acme.sh's _saveaccountconf quoting so both writers preserve the same value.
     - require:
       - file: salt-acme-account-config
-
-salt-haproxy-certs-directory:
-  file.directory:
-    - name: /etc/haproxy/certs
-    - user: root
-    - group: haproxy
-    - mode: '0755'
-    - require:
-      - pkg: salt-haproxy-package
-
-# acme.sh preserves owner and mode when it updates an existing file. Keep the files writable by
-# ubuntu for unattended renewal and readable by HAProxy; Salt manages their metadata, not content.
-salt-haproxy-cert-file:
-  file.managed:
-    - name: /etc/haproxy/certs/{{ tls["cert_name"] }}.pem
-    - user: ubuntu
-    - group: haproxy
-    - mode: '0640'
-    - replace: false
-    - show_changes: false
-    - require:
-      - file: salt-haproxy-certs-directory
-
-salt-haproxy-key-file:
-  file.managed:
-    - name: /etc/haproxy/certs/{{ tls["cert_name"] }}.pem.key
-    - user: ubuntu
-    - group: haproxy
-    - mode: '0640'
-    - replace: false
-    - show_changes: false
-    - require:
-      - file: salt-haproxy-certs-directory
 
 salt-acme-renewal:
   cron.present:

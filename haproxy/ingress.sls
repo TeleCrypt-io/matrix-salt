@@ -1,8 +1,12 @@
 {% set role = pillar['deployment']['role'] %}
-{% set tls_enabled = pillar.get('tls', {}).get('enabled', true) %}
+{% set tls = pillar.get('tls', {}) %}
+{% set tls_enabled = tls.get('enabled', true) %}
+{% set supplied_certificate = tls.get('certificate_source') is not none %}
 include:
 {% if role == 'apps' or not tls_enabled %}
   - haproxy.package
+{% elif supplied_certificate %}
+  - haproxy.cert
 {% else %}
   - haproxy.bootstrap
   - haproxy.cert
@@ -22,7 +26,12 @@ salt-ingress-config:
     - require:
       - pkg: salt-haproxy-package
 {% if role != 'apps' and tls_enabled %}
+{% if supplied_certificate %}
+      - file: salt-haproxy-cert-file
+      - file: salt-haproxy-key-file
+{% else %}
       - cmd: salt-cert-installed
+{% endif %}
 {% endif %}
 
 salt-ingress-stop-before-config:
@@ -31,10 +40,16 @@ salt-ingress-stop-before-config:
     - require:
       - pkg: salt-haproxy-package
 {% if role != 'apps' and tls_enabled %}
+{% if not supplied_certificate %}
       - cmd: salt-cert-installed
+{% endif %}
 {% endif %}
     - prereq:
       - file: salt-ingress-config
+{% if role != 'apps' and tls_enabled and supplied_certificate %}
+      - file: salt-haproxy-cert-file
+      - file: salt-haproxy-key-file
+{% endif %}
 
 salt-ingress-service:
   service.running:

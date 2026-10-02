@@ -17,6 +17,11 @@ Stage currently has no public TURN/TLS listener. Production can enable direct UD
 in its private host settings; the shared public UDP port belongs to only that LiveKit
 host, not Stage or HTTP/3.
 
+While FreeBSD edge routing is pending, temporary Stage TLS can be enabled with an
+already generated certificate by setting `tls.enabled: true` plus both
+`tls.certificate_source` and `tls.private_key_source` to their Salt source URLs. Remove
+both source settings when the edge is ready to restore the normal ACME issuance path.
+
 LiveKit's TURN relay advertises `livekit.node_ip` on its configured UDP relay
 range. The incoming firewall keeps that range closed; an OUTPUT-only UFW DNAT
 maps this host's UDP traffic to its own advertised IP on UDP 443 and the relay

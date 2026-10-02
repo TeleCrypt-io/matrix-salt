@@ -1,8 +1,9 @@
-# Certificate issuance and installation, driven by pillar["tls"]: cert_name, hosts (first host is
-# the acme.sh certificate name), and acme_account_thumbprint. The shared ACME listener states
-# live in haproxy/bootstrap.sls; they require_in the states
-# below so issuance always runs after a challenge-capable listener is in place.
 {% set tls = pillar["tls"] %}
+{% set supplied_certificate = tls.get("certificate_source") is not none %}
+{% if supplied_certificate %}
+include:
+  - haproxy.cert_files
+{% else %}
 {% set hosts = tls["hosts"] %}
 {% set primary = hosts[0] %}
 {% set domain_dir = '/home/ubuntu/.acme.sh/' ~ primary ~ '_ecc' %}
@@ -62,3 +63,4 @@ salt-cert-installed:
       - file: salt-haproxy-cert-file
       - file: salt-haproxy-key-file
       - file: salt-access-sudoers
+{% endif %}
