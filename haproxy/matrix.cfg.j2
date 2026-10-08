@@ -54,8 +54,9 @@ frontend matrix_https
     acl mas_compat path_reg ^/_matrix/client/[^/]+/(logout|refresh)/?$
     acl mas_path path -i /login /logout /register /account /authorize /link /recover /.well-known/openid-configuration /.well-known/webfinger /.well-known/change-password
     acl mas_prefix path_beg /register/ /account/ /consent/ /device/ /recover/ /upstream/ /complete-compat-sso/ /oauth2/ /graphql /assets/
+    acl synapse_path path_beg /_matrix/ /_synapse/client/rendezvous/
     use_backend mas if mas_compat
-    use_backend synapse if { path_beg /_matrix/ }
+    use_backend synapse if synapse_path
     use_backend jwt if { path -i /sfu/get /get_token /delegate_delayed_leave /sfu_webhook }
     use_backend livekit_signaling if { path_beg /livekit/ }
     use_backend applications if { path -i /redpill {{ pillar['ingress']['dodo_webhook_path'] }} }
