@@ -22,6 +22,8 @@ salt-haproxy-cert-file:
 {% if supplied_certificate %}
     - source: {{ certificate_source | tojson }}
     - replace: true
+{% else %}
+    - replace: false
 {% endif %}
     - user: ubuntu
     - group: haproxy
@@ -36,6 +38,8 @@ salt-haproxy-key-file:
 {% if supplied_certificate %}
     - source: {{ tls["private_key_source"] | tojson }}
     - replace: true
+{% else %}
+    - replace: false
 {% endif %}
     - user: ubuntu
     - group: haproxy

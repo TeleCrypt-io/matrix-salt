@@ -18,9 +18,20 @@ salt-ingress-stop-before-certificates:
     - name: haproxy
     - require:
       - pkg: salt-haproxy-package
+{% if supplied_certificate %}
     - prereq:
       - file: salt-haproxy-cert-file
       - file: salt-haproxy-key-file
+{% else %}
+    # Salt 3008.2's replace:false permission probe mutates during prereq.
+    # Check actual metadata before the native stop, then let file states repair it.
+    - unless:
+      - test "$(stat -c '%U:%G %a' /etc/haproxy/certs/{{ tls['cert_name'] }}.pem)" = 'ubuntu:haproxy 640'
+      - test "$(stat -c '%U:%G %a' /etc/haproxy/certs/{{ tls['cert_name'] }}.pem.key)" = 'ubuntu:haproxy 640'
+    - require_in:
+      - file: salt-haproxy-cert-file
+      - file: salt-haproxy-key-file
+{% endif %}
 {% endif %}
 
 {% if role != 'livekit' or tls_enabled %}
