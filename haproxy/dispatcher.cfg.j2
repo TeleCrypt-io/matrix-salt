@@ -1,0 +1,20 @@
+frontend tls_dispatcher
+    mode tcp
+    option tcplog
+    bind :443
+{% if pillar['network'].get('ingress_proxy_address') %}
+    tcp-request connection reject unless { fc_src {{ pillar['network']['ingress_proxy_address'] }} }
+    tcp-request connection expect-proxy layer4
+{% endif %}
+    tcp-request inspect-delay 5s
+    tcp-request content accept if { req.ssl_hello_type 1 }
+    use_backend acme_alpn if { req.ssl_alpn acme-tls/1 }
+    default_backend ordinary_tls
+
+backend acme_alpn
+    mode tcp
+    server acme 127.0.0.1:10443
+
+backend ordinary_tls
+    mode tcp
+    server tls 127.0.0.1:8443 send-proxy-v2

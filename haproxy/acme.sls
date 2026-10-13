@@ -22,8 +22,7 @@ salt-acme-executable:
     - require:
       - file: salt-acme-home
 
-# Stateless challenges must use the thumbprint of this exact account key.
-# Private Pillar supplies the thumbprint reported when this account is registered.
+# Preserve the registered account identity for issuance and scheduled renewal.
 salt-acme-account-directory:
   file.directory:
     - name: /home/ubuntu/.acme.sh/ca/acme-v02.api.letsencrypt.org/directory

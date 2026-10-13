@@ -3,7 +3,12 @@
 TeleCrypt's custom Synapse and policy module, MAS and MatrixRTC JWT run on the
 Matrix host. LiveKit and Redis run on a separate host. Application containers run
 as `ubuntu` under rootless Podman/Quadlet. PostgreSQL and durable S3 remain external.
-HAProxy owns ingress; acme.sh owns HTTP-01 certificate issuance and renewal.
+HAProxy owns ingress; acme.sh owns TLS-ALPN-01 certificate issuance and renewal on public TCP 443.
+The shared raw TCP dispatcher accepts PROXY headers only from the configured ingress peer,
+routes `acme-tls/1` to acme.sh on loopback port 10443 without PROXY headers, and forwards ordinary
+TLS with PROXY v2 to the existing loopback port 8443 TLS frontend. No public port 80 is required.
+The same dispatcher bootstraps fresh hosts before a certificate exists. acme.sh retains the
+account key and saves ALPN, port 10443 and the loopback address for its 03:17/15:17 renewal cron.
 
 This is adapted source from [PotemkinCo/matrix-salt](https://github.com/PotemkinCo/matrix-salt),
 with no GitHub fork relationship. Upstream licenses and attribution are retained.

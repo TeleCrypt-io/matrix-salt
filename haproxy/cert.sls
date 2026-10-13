@@ -27,14 +27,22 @@ include:
 salt-cert-issued:
   cmd.run:
     - name: >-
-        {{ acme_script }} --issue --server letsencrypt --stateless --keylength ec-256{% for host in hosts %} -d {{ host }}{% endfor %}
+        {{ acme_script }} --issue --force --server letsencrypt --alpn --tlsport 10443 --local-address 127.0.0.1 --keylength ec-256{% for host in hosts %} -d {{ host }}{% endfor %}
         --key-file {{ key_file }} --fullchain-file {{ cert_file }}
         --reloadcmd '{{ reload_cmd }}' --home /home/ubuntu/.acme.sh
     - runas: ubuntu
     # Setup only: acme.sh's scheduled job owns expiry and renewal.
     # A command guard has its own exit status; module guards can inherit an earlier
     # failed command's retcode from Salt's shared execution context.
-    - unless: /usr/bin/{{ "true" if names_match else "false" }}
+    # Force only when setup differs: acme.sh otherwise skips a challenge-method change
+    # for an unexpired certificate with the same names. Saved local addresses use a trailing comma.
+    - unless:
+      - /usr/bin/{{ "true" if names_match else "false" }}
+      - grep -Fxq "Le_Domain='{{ primary }}'" {{ domain_conf }}
+      - grep -Fxq "Le_Alt='{{ hosts[1:] | join(',') if hosts|length > 1 else 'no' }}'" {{ domain_conf }}
+      - grep -Fxq "Le_Webroot='alpn'" {{ domain_conf }}
+      - grep -Fxq "Le_TLSPort='10443'" {{ domain_conf }}
+      - grep -Fxq "Le_LocalAddress='127.0.0.1,'" {{ domain_conf }}
     - require:
       - file: salt-acme-account-key
       - file: salt-acme-executable

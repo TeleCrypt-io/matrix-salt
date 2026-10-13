@@ -12,7 +12,7 @@ include:
   - haproxy.cert
 {% endif %}
 
-{% if role != 'apps' and tls_enabled and supplied_certificate %}
+{% if role != 'apps' and tls_enabled %}
 salt-ingress-stop-before-certificates:
   service.dead:
     - name: haproxy
@@ -68,7 +68,7 @@ salt-ingress-service:
     - require:
       - service: salt-ingress-stop-before-config
       - file: salt-ingress-config
-{% if role != 'apps' and tls_enabled and supplied_certificate %}
+{% if role != 'apps' and tls_enabled %}
       - service: salt-ingress-stop-before-certificates
       - file: salt-haproxy-cert-file
       - file: salt-haproxy-key-file

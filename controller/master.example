@@ -1,5 +1,7 @@
 # Render into a private temporary invocation directory; remove it on exit.
 # Apps uses its checkout first, followed by its common/ Matrix Salt submodule.
+# Salt SSH must transfer the shared fragment used by managed HAProxy templates.
+extra_filerefs: salt://haproxy/dispatcher.cfg.j2
 file_roots:
   base:
     - /ABSOLUTE/CONFIGURATION_CHECKOUT

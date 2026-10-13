@@ -1,7 +1,7 @@
 include:
   - haproxy.acme
 
-{% set primary = pillar["tls"]["hosts"][0] %}
+{% set cert_file = '/etc/haproxy/certs/' ~ pillar['tls']['cert_name'] ~ '.pem' %}
 
 salt-acme-bootstrap-config:
   file.managed:
@@ -11,8 +11,9 @@ salt-acme-bootstrap-config:
     - user: root
     - group: root
     - mode: '0644'
-    # A supplied certificate may exist without an acme.sh chain; restore HTTP-01 until issuance.
-    - unless: test -s /home/ubuntu/.acme.sh/{{ primary }}_ecc/fullchain.cer
+    # Retain an installed runtime configuration during the supplied-certificate transition.
+    # A fresh host needs only the same raw TLS dispatcher until issuance succeeds.
+    - unless: test -s {{ cert_file }} -a -s {{ cert_file }}.key
     - check_cmd: /usr/sbin/haproxy -c -f
     - require:
       - pkg: salt-haproxy-package
@@ -34,5 +35,8 @@ salt-acme-bootstrap-service:
     - require:
       - service: salt-acme-bootstrap-stop-before-config
       - file: salt-acme-bootstrap-config
+      - service: salt-ingress-stop-before-certificates
+      - file: salt-haproxy-cert-file
+      - file: salt-haproxy-key-file
     - require_in:
       - cmd: salt-cert-issued

@@ -13,8 +13,6 @@
 ### tuple ### allow tcp {{ pillar["network"]["ssh_port"] }} {{ any_address }} any {{ any_address }} in
 -A {{ chain }} -p tcp --dport {{ pillar["network"]["ssh_port"] }} -j ACCEPT
 {% if tls_enabled and family == ingress_family %}
-### tuple ### allow tcp 80 {{ ingress_proxy_address }} any {{ any_address }} in
--A {{ chain }} -p tcp -s {{ ingress_proxy_address }} --dport 80 -j ACCEPT
 ### tuple ### allow tcp 443 {{ ingress_proxy_address }} any {{ any_address }} in
 -A {{ chain }} -p tcp -s {{ ingress_proxy_address }} --dport 443 -j ACCEPT
 {% endif %}
