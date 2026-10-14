@@ -97,13 +97,14 @@ matrix-private-{{ target_name|replace(".", "-")|replace("_", "-") }}:
       - file: matrix-secrets-directory
 {% endfor %}
 
-# LiveKit's API reads a top-level API-key-to-secret YAML map and rejects files with any
-# world permission. Rootless container UID 991 maps to host UID/GID 100990 (100000 + 990).
+# lk-jwt-service reads LIVEKIT_KEY_FILE as a plain API-key-and-secret pair. Keep the values
+# unquoted because its parser preserves quote characters. Rootless UID 991 maps to host
+# UID/GID 100990 (100000 + 990); the service also rejects files with world permissions.
 matrix-private-livekit-keys-yaml:
   file.managed:
     - name: {{ secrets_dir }}/livekit.keys.yaml
     - contents: |
-        {{ pillar["rtc"]["key"] | tojson }}: {{ pillar["rtc"]["secret"] | tojson }}
+        {{ pillar["rtc"]["key"] }}: {{ pillar["rtc"]["secret"] }}
     - user: 100990
     - group: 100990
     - mode: '0400'
