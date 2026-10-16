@@ -8,7 +8,7 @@ tls:
   acme_account_thumbprint: REPLACE_WITH_ACCOUNT_THUMBPRINT
 network:
   private_address: 192.0.2.30
-  matrix_address: 192.0.2.10/32
+  matrix_source_address: 192.0.2.10/32
   ingress_proxy_address: 192.0.2.1
   ssh_port: 22
 livekit:

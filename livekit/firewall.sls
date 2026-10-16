@@ -1,4 +1,4 @@
-{% set matrix_address = pillar["network"]["matrix_address"] %}
+{% set matrix_source_address = pillar["network"]["matrix_source_address"] %}
 {% set ingress_proxy_address = pillar["network"]["ingress_proxy_address"] %}
 {% set tls_enabled = pillar.get("tls", {}).get("enabled", true) %}
 
@@ -54,7 +54,7 @@ salt-livekit-ufw-user{{ suffix }}-rules:
     - template: jinja
     - context:
         family: {{ family }}
-        matrix_address: {{ matrix_address | tojson }}
+        matrix_source_address: {{ matrix_source_address | tojson }}
         ingress_proxy_address: {{ ingress_proxy_address | tojson }}
     - user: root
     - group: root

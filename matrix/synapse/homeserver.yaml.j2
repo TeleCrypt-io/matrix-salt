@@ -83,15 +83,15 @@ password_config:
 report_stats: false
 
 # Custom user types used by the local policy projection. New accounts start in the native
-# unverified state; Cashier changes this field only after an explicit billing transition.
+# Free state; Cashier projects current paid access from durable billing state.
 user_types:
-  default_user_type: wild
+  default_user_type: free
   extra_user_types:
-    - wild
-    - verified
-    - uploads_blocked
+    - free
+    - paid
+    - paid_over_quota
 
-# Fail-closed capability restrictions for unverified users (uploads and plaintext events).
+# Capability restrictions for Free accounts (uploads and plaintext events).
 # Free users may still create encrypted rooms until their account is suspended.
 # Baked into the exact TeleCrypt Synapse image selected by the server release, which contains
 # the Controlplane policy-module wheel. Its source and tests live in the control-plane source tree.

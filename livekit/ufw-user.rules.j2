@@ -20,9 +20,9 @@
 ### tuple ### allow udp 443 0.0.0.0/0 any 0.0.0.0/0 in
 -A {{ chain }} -p udp --dport 443 -j ACCEPT
 {% endif %}
-{% if (family == "v4" and ":" not in matrix_address) or (family == "v6" and ":" in matrix_address) %}
-### tuple ### allow tcp 7880 {{ matrix_address }} any {{ any_address }} in
--A {{ chain }} -p tcp -s {{ matrix_address }} --dport 7880 -j ACCEPT
+{% if (family == "v4" and ":" not in matrix_source_address) or (family == "v6" and ":" in matrix_source_address) %}
+### tuple ### allow tcp 7880 {{ matrix_source_address }} any {{ any_address }} in
+-A {{ chain }} -p tcp -s {{ matrix_source_address }} --dport 7880 -j ACCEPT
 {% endif %}
 ### END RULES ###
 -A {% if family == "v6" %}ufw6-user-limit{% else %}ufw-user-limit{% endif %} -m limit --limit 3/minute -j LOG --log-prefix "[UFW LIMIT BLOCK] "

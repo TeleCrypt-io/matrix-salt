@@ -47,7 +47,7 @@ frontend matrix_https
     use_backend synapse if synapse_path
     use_backend jwt if { path -i /sfu/get /get_token /delegate_delayed_leave /sfu_webhook }
     use_backend livekit_signaling if { path_beg /livekit/ }
-    use_backend applications if { path -i /redpill {{ pillar['ingress']['dodo_webhook_path'] }} }
+    use_backend applications if { path -i /register {{ pillar['ingress']['dodo_webhook_path'] }} }
     use_backend applications if { path_beg /plan/ }
     use_backend mas if mas_path or mas_prefix
     default_backend not_found
