@@ -14,7 +14,7 @@ global
 defaults
     log global
     mode http
-    option httplog
+    log-format "src=%ci method=%HM path=%{+Q}HP status=%ST bytes=%B total_ms=%Ta"
     timeout connect 5s
     timeout client 1h
     timeout server 1h
