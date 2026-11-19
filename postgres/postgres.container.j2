@@ -1,0 +1,29 @@
+[Unit]
+Description=Application-local PostgreSQL
+
+[Container]
+ContainerName=postgres
+Image={{ pillar['versions']['images']['postgres'] }}
+Network=host
+EnvironmentFile=/home/ubuntu/salt_config/secrets/postgres.env
+Environment=POSTGRES_INITDB_ARGS=--locale=C
+Volume=postgres-data.volume:/var/lib/postgresql/data
+Volume=/home/ubuntu/salt_config/postgres-tls:/tls:ro
+Exec=postgres -c listen_addresses=127.0.0.1,{{ pillar['network']['private_address'] }} -c ssl=on -c ssl_cert_file=/tls/server.crt -c ssl_key_file=/tls/server.key -c shared_buffers=128MB -c max_connections=100
+LogDriver=journald
+Notify=healthy
+Pull=missing
+HealthCmd=pg_isready -U postgres -d postgres
+HealthInterval=5s
+HealthTimeout=5s
+HealthRetries=30
+HealthStartPeriod=20s
+
+[Service]
+TimeoutStartSec=900
+TimeoutStopSec=120
+Restart=always
+RestartSec=2
+
+[Install]
+WantedBy=default.target
