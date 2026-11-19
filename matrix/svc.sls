@@ -1,4 +1,5 @@
 include:
+  - postgres
   - matrix.units
   - matrix.runtime
 
@@ -24,6 +25,7 @@ matrix-mas-running:
     - timeout: 900
     - require:
       - user_service: matrix-pod-running
+      - user_service: postgres-running
       - user_service: matrix-mas-quiescent
       - file: matrix-mas-quadlet
       - file: matrix-mas-config

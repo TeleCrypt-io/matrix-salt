@@ -1,4 +1,6 @@
 versions:
+  images:
+    postgres: docker.io/library/postgres:17.11-bookworm
   salt_controller: '3008.2'
   acme_sh: '3.1.6'
   haproxy_series: '3.2'
